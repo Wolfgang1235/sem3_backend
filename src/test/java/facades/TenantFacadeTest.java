@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityNotFoundException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TenantFacadeTest extends TestEnvironment {
     private static TenantFacade facade;
@@ -34,5 +35,23 @@ public class TenantFacadeTest extends TestEnvironment {
     @Test
     public void getTenantByNonExistingIdTest() {
         assertThrows(EntityNotFoundException.class,()-> facade.getTenantById(nonExistingId));
+    }
+
+    @Test
+    public void getAllTenantsTest() {
+        Tenant tenantA = createAndPersistTenant();
+        Tenant tenantB = createAndPersistTenant();
+        int expected = 2;
+
+        List<Tenant> actual = facade.getAllTenants();
+
+        assertEquals(expected, actual.size());
+        assertTrue(actual.contains(tenantA));
+        assertTrue(actual.contains(tenantB));
+    }
+
+    @Test
+    public void getAllTenantsWithNothingTest() {
+        assertDoesNotThrow(()-> facade.getAllTenants());
     }
 }
