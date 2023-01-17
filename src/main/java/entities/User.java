@@ -76,7 +76,6 @@ public class User implements Serializable, entities.Entity {
         this.age = age;
     }
 
-
     public Integer getId() {
         return id;
     }

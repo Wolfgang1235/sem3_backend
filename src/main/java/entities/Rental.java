@@ -4,12 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "rentals")
-public class Rental {
+public class Rental implements entities.Entity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -47,7 +46,21 @@ public class Rental {
     @JoinTable(name = "tenants_rentals",
             joinColumns = @JoinColumn(name = "rental_id"),
             inverseJoinColumns = @JoinColumn(name = "tenant_id"))
-    private Set<Tenant> tenants = new LinkedHashSet<>();
+    private List<Tenant> tenants = new ArrayList<>();
+
+    public Rental() {
+    }
+
+    public Rental(String startDate, String endDate, Integer priceAnnual, Integer deposit,
+                  String contactPerson, House houses, List<Tenant> tenants) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.priceAnnual = priceAnnual;
+        this.deposit = deposit;
+        this.contactPerson = contactPerson;
+        this.houses = houses;
+        this.tenants = tenants;
+    }
 
     public Integer getId() {
         return id;
@@ -97,7 +110,7 @@ public class Rental {
         this.contactPerson = contactPerson;
     }
 
-    public House getHouses() {
+    public House getHouse() {
         return houses;
     }
 
@@ -105,12 +118,36 @@ public class Rental {
         this.houses = houses;
     }
 
-    public Set<Tenant> getTenants() {
+    public List<Tenant> getTenants() {
         return tenants;
     }
 
-    public void setTenants(Set<Tenant> tenants) {
+    public void setTenants(List<Tenant> tenants) {
         this.tenants = tenants;
     }
 
+    public List<Integer> getTenantIds() {
+        List<Integer> tenantIds = new ArrayList<>();
+        tenants.forEach((tenant) -> tenantIds.add(tenant.getId()));
+        return tenantIds;
+    }
+
+    public List<String> getTenantsAsStringList() {
+        List<String> tenantsAsStrings = new ArrayList<>();
+        tenants.forEach((tenant) -> tenantsAsStrings.add(tenant.getName()));
+        return tenantsAsStrings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Rental)) return false;
+        Rental rental = (Rental) o;
+        return Objects.equals(getId(), rental.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }

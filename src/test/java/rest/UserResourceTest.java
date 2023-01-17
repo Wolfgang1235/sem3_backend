@@ -1,11 +1,15 @@
 package rest;
 
+import dtos.RentalDTO;
 import dtos.UserDTO;
+import entities.Rental;
 import entities.Role;
 import entities.User;
 import io.restassured.http.ContentType;
 import org.glassfish.grizzly.http.util.HttpStatus;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -14,7 +18,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     private final String BASE_URL = "/users/";
 
     @Test
-    void createUserTest() {
+    public void createUserTest() {
         UserDTO userDTO = createUserDTO();
 
         int id = given()
@@ -38,7 +42,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void createUserInvalidUsernameTest() {
+    public void createUserInvalidUsernameTest() {
         UserDTO userDTO = createUserDTO();
         userDTO = new UserDTO.Builder(userDTO)
                 .setUsername(faker.letterify("??"))
@@ -58,7 +62,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void createUserWithUsernameThatAlreadyExistTest() {
+    public void createUserWithUsernameThatAlreadyExistTest() {
         User existingUser = createAndPersistUser();
         UserDTO userDTO = createUserDTO();
         userDTO = new UserDTO.Builder(userDTO)
@@ -79,7 +83,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void createUserInvalidPasswordTest() {
+    public void createUserInvalidPasswordTest() {
         UserDTO userDTO = createUserDTO();
         userDTO = new UserDTO.Builder(userDTO)
                 .setPassword(faker.letterify("??"))
@@ -99,7 +103,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void createUserIllegalAgeTest() {
+    public void createUserIllegalAgeTest() {
         UserDTO userDTO = createUserDTO();
         userDTO = new UserDTO.Builder(userDTO)
                 .setAge(faker.random().nextInt(121,300))
@@ -119,7 +123,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void getUserTest() {
+    public void getUserTest() {
         User user = createAndPersistUser();
 
         int id = user.getId();
@@ -141,11 +145,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void getAllUsersTest() {
-        User admin = createAndPersistUser();
-        Role role = new Role("admin");
-        admin.addRole(role);
-        admin = (User) update(admin);
+    public void getAllUsersTest() {
+        User admin = createAndPersistAdmin();
         login(admin);
 
         given()
@@ -161,7 +162,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void getAllUsersWhenUnauthenticatedTest() {
+    public void getAllUsersWhenUnauthenticatedTest() {
         given()
                 .header("Content-type", ContentType.JSON)
                 .when()
@@ -172,7 +173,7 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
-    void getAllUsersWhenUnauthorizedTest() {
+    public void getAllUsersWhenUnauthorizedTest() {
         User user = createAndPersistUser();
         login(user);
 
@@ -184,5 +185,114 @@ public class UserResourceTest extends ResourceTestEnvironment {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED_401.getStatusCode());
+    }
+
+    @Test
+    public void postRentalTest() {
+        RentalDTO rentalDTO = createRentalDTO();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        int id = given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .post(BASE_URL+"rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.CREATED_201.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("id", notNullValue())
+                .body("contact_person", equalTo(rentalDTO.getContactPerson()))
+                .body("house", notNullValue())
+                .extract().path("id");
+
+        assertDatabaseHasEntity(new Rental(), id);
+    }
+
+    @Test
+    public void postRentalWhenAuthenticatedTest() {
+        given()
+                .header("Content-type", ContentType.JSON)
+                .when()
+                .post(BASE_URL+"rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN_403.getStatusCode());
+    }
+
+    @Test
+    public void postRentalWhenUnauthorizedTest() {
+        User user = createAndPersistUser();
+        login(user);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .when()
+                .post(BASE_URL+"rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED_401.getStatusCode());
+    }
+
+    @Test
+    public void postRentalWithNonExistingHouseTest() {
+        RentalDTO rentalDTO = createRentalDTO();
+        rentalDTO = new RentalDTO.Builder()
+                .setId(rentalDTO.getId())
+                .setStartDate(rentalDTO.getStartDate())
+                .setEndDate(rentalDTO.getEndDate())
+                .setPriceAnnual(rentalDTO.getPriceAnnual())
+                .setDeposit(rentalDTO.getDeposit())
+                .setContactPerson(rentalDTO.getContactPerson())
+                .setHouseId(nonExistingId)
+                .setTenantIds(rentalDTO.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .post(BASE_URL+"rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode());
+    }
+
+    @Test
+    public void postRentalWithNonExistingTenantIdTest() {
+        RentalDTO rentalDTO = createRentalDTO();
+        ArrayList<Integer> tenantIds = new ArrayList<>();
+        tenantIds.add(nonExistingId);
+        rentalDTO = new RentalDTO.Builder()
+                .setId(rentalDTO.getId())
+                .setStartDate(rentalDTO.getStartDate())
+                .setEndDate(rentalDTO.getEndDate())
+                .setPriceAnnual(rentalDTO.getPriceAnnual())
+                .setDeposit(rentalDTO.getDeposit())
+                .setContactPerson(rentalDTO.getContactPerson())
+                .setHouseId(rentalDTO.getHouseId())
+                .setTenantIds(tenantIds)
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .post(BASE_URL+"rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode());
     }
 }

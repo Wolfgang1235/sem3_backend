@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import utils.EMF_Creator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +38,9 @@ public class TestEnvironment {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
+            em.createQuery("DELETE FROM Rental").executeUpdate();
+            em.createQuery("DELETE FROM House").executeUpdate();
+            em.createQuery("DELETE FROM Tenant").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
             em.createQuery("DELETE FROM Role").executeUpdate();
             em.getTransaction().commit();
@@ -109,6 +114,45 @@ public class TestEnvironment {
 
     protected Role createRole() {
         return new Role(faker.letterify("????"));
+    }
+
+    protected Tenant createAndPersistTenant() {
+        Tenant tenant = createTenant();
+        return (Tenant) persist(tenant);
+    }
+
+    protected Tenant createTenant() {
+        User user = createAndPersistUser();
+        return new Tenant(
+                faker.name().firstName(),
+                faker.number().numberBetween(10000000,99999999),
+                faker.job().title(),
+                user);
+    }
+
+    protected House createAndPersistHouse() {
+        House house = createHouse();
+        return (House) persist(house);
+    }
+
+    protected House createHouse() {
+        return new House(
+                faker.address().streetAddress(),
+                faker.address().city(),
+                faker.number().numberBetween(1,5));
+    }
+
+    protected Rental createRental() {
+        List<Tenant> tenants = new ArrayList<>();
+        tenants.add(createAndPersistTenant());
+        return new Rental(
+                faker.bothify("1#/0#/200#"),
+                faker.bothify("1#/0#/201#"),
+                faker.number().randomDigit(),
+                faker.number().randomDigit(),
+                faker.name().firstName(),
+                createAndPersistHouse(),
+                tenants);
     }
 
     protected void assertDatabaseHasEntity(Entity entity, int id) {

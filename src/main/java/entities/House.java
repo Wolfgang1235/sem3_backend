@@ -4,12 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "houses")
-public class House {
+public class House implements entities.Entity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -30,7 +29,16 @@ public class House {
     private Integer numberOfRooms;
 
     @OneToMany(mappedBy = "houses")
-    private Set<Rental> rentals = new LinkedHashSet<>();
+    private List<Rental> rentals = new ArrayList<>();
+
+    public House() {
+    }
+
+    public House(String address, String city, Integer numberOfRooms) {
+        this.address = address;
+        this.city = city;
+        this.numberOfRooms = numberOfRooms;
+    }
 
     public Integer getId() {
         return id;
@@ -64,12 +72,24 @@ public class House {
         this.numberOfRooms = numberOfRooms;
     }
 
-    public Set<Rental> getRentals() {
+    public List<Rental> getRentals() {
         return rentals;
     }
 
-    public void setRentals(Set<Rental> rentals) {
+    public void setRentals(List<Rental> rentals) {
         this.rentals = rentals;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof House)) return false;
+        House house = (House) o;
+        return Objects.equals(getId(), house.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }

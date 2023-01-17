@@ -4,6 +4,7 @@ import entities.Entity;
 
 import javax.persistence.*;
 
+import entities.Rental;
 import entities.User;
 import errorhandling.IllegalAgeException;
 import errorhandling.InvalidUsernameException;
@@ -135,6 +136,19 @@ public class UserFacade {
         List<User> allUsers = query.getResultList();
         em.close();
         return allUsers;
+    }
+
+    public Rental createRental(Rental rental) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            em.getTransaction().begin();
+            em.persist(rental);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+        return rental;
     }
 
     public void deleteUser(Integer id) {

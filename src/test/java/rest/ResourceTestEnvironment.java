@@ -3,7 +3,10 @@ package rest;
 import TestEnvironment.TestEnvironment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dtos.RentalDTO;
 import dtos.UserDTO;
+import entities.Rental;
+import entities.Role;
 import entities.User;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
@@ -63,6 +66,14 @@ public class ResourceTestEnvironment extends TestEnvironment {
         securityToken = null;
     }
 
+    protected User createAndPersistAdmin() {
+        User admin = createAndPersistUser();
+        Role adminRole = new Role("admin");
+        admin.addRole(adminRole);
+        admin = (User) update(admin);
+        return admin;
+    }
+
     protected UserDTO createUserDTO() {
         User user = createUser();
 
@@ -72,6 +83,21 @@ public class ResourceTestEnvironment extends TestEnvironment {
                 .setPassword(password)
                 .setAge(user.getAge())
                 .setRoles(user.getRolesAsStringList())
+                .build();
+    }
+
+    protected RentalDTO createRentalDTO() {
+        Rental rental = createRental();
+
+        return new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(rental.getStartDate())
+                .setEndDate(rental.getEndDate())
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouseId(rental.getHouse().getId())
+                .setTenantIds(rental.getTenantIds())
                 .build();
     }
 }
