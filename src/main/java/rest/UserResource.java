@@ -169,6 +169,17 @@ public class UserResource extends Resource {
         return Response.status(HttpStatus.CREATED_201.getStatusCode()).entity(rentalToJson).build();
     }
 
+    @DELETE
+    @RolesAllowed("admin")
+    @Path("rentals/{id}")
+    public Response deleteRental(@PathParam("id") int id) {
+        try {
+            facade.deleteRental(id);
+        } catch (EntityNotFoundException exception) {
+        }
+        return Response.status(HttpStatus.NO_CONTENT_204.getStatusCode()).build();
+    }
+
     private UserDTO buildStandardUserDTO(User user) {
         return new UserDTO.Builder()
                 .setId(user.getId())

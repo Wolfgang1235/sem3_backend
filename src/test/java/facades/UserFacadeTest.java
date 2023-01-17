@@ -226,4 +226,19 @@ public class UserFacadeTest extends TestEnvironment {
 
         assertDatabaseHasEntity(actual, actual.getId());
     }
+
+    @Test
+    public void deleteRentalTest() {
+        Rental rental = createAndPersistRental();
+
+        facade.deleteRental(rental.getId());
+
+        assertDatabaseDoesNotHaveEntity(rental, rental.getId());
+        assertDatabaseHasEntity(rental.getHouse(), rental.getHouse().getId());
+    }
+
+    @Test
+    public void deleteRentalWithNonExistingIdTest() {
+        assertThrows(EntityNotFoundException.class, ()-> facade.deleteRental(nonExistingId));
+    }
 }

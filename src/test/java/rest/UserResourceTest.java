@@ -295,4 +295,57 @@ public class UserResourceTest extends ResourceTestEnvironment {
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode());
     }
+
+    @Test
+    public void deleteRentalTest() {
+        Rental rental = createAndPersistRental();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .delete(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
+    public void deleteRentalWhenUnauthenticatedTest() {
+        Rental rental = createAndPersistRental();
+
+        given()
+                .when()
+                .delete(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN_403.getStatusCode());
+    }
+
+    @Test
+    public void deleteRentalWhenUnauthorizedTest() {
+        Rental rental = createAndPersistRental();
+        User user = createAndPersistUser();
+        login(user);
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .delete(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .statusCode(HttpStatus.UNAUTHORIZED_401.getStatusCode());
+    }
+
+    @Test
+    public void deleteRentalWithNonExistingIdTest() {
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .delete(BASE_URL+"rentals/"+nonExistingId)
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
 }
