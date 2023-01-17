@@ -166,7 +166,19 @@ public class UserFacade {
         }
     }
 
-    protected void deleteEntity(Entity entity, EntityManager em) {
+    public void deleteRental(int id) {
+        EntityManager em = emf.createEntityManager();
+
+        Rental rental = em.find(Rental.class, id);
+
+        if (rental == null) {
+            throw new EntityNotFoundException("Rental with id: "+id+" does not exist in database");
+        }
+
+        deleteEntity(rental, em);
+    }
+
+    private void deleteEntity(Entity entity, EntityManager em) {
         try {
             em.getTransaction().begin();
             em.remove(entity);
