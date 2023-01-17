@@ -142,6 +142,11 @@ public class TestEnvironment {
                 faker.number().numberBetween(1,5));
     }
 
+    protected Rental createAndPersistRental() {
+        Rental rental = createRental();
+        return (Rental) persist(rental);
+     }
+
     protected Rental createRental() {
         List<Tenant> tenants = new ArrayList<>();
         tenants.add(createAndPersistTenant());

@@ -5,6 +5,8 @@ import entities.Tenant;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.TypedQuery;
+import java.util.List;
 
 public class TenantFacade {
     private static EntityManagerFactory emf;
@@ -32,5 +34,15 @@ public class TenantFacade {
         }
 
         return tenant;
+    }
+
+    public List<Tenant> getAllTenants() {
+        EntityManager em = emf.createEntityManager();
+
+        TypedQuery<Tenant> query = em.createQuery("SELECT t FROM Tenant t", Tenant.class);
+        List<Tenant> tenants = query.getResultList();
+        em.close();
+
+        return tenants;
     }
 }
