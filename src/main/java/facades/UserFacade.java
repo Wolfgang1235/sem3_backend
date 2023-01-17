@@ -1,10 +1,10 @@
 package facades;
 
 import entities.Entity;
-import entities.User;
 
 import javax.persistence.*;
 
+import entities.User;
 import errorhandling.IllegalAgeException;
 import errorhandling.InvalidUsernameException;
 import errorhandling.UniqueException;
