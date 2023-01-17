@@ -219,6 +219,28 @@ public class UserFacadeTest extends TestEnvironment {
     }
 
     @Test
+    public void getRentalsByUserIdTest() {
+        Tenant tenant = createAndPersistTenant();
+        Rental rentalA = createAndPersistRental();
+        Rental rentalB = createAndPersistRental();
+        Rental rentalC = createAndPersistRental();
+        rentalA.getTenants().add(tenant);
+        rentalB.getTenants().add(tenant);
+        update(rentalA);
+        update(rentalB);
+        int expected = 2;
+
+        List<Rental> actual = facade.getRentalsByUserId(tenant.getUser().getId());
+
+        assertEquals(expected, actual.size());
+    }
+
+    @Test
+    public void getRentalsByNonExistingIdTest() {
+        assertThrows(EntityNotFoundException.class, ()-> facade.getRentalsByUserId(nonExistingId));
+    }
+
+    @Test
     public void createRentalTest() {
         Rental rental = createRental();
 

@@ -1,11 +1,15 @@
 package dtos;
 
+import java.util.List;
+
 public class TenantDTO {
     private final Integer id;
     private final String name;
     private final Integer phone;
     private final String job;
     private final Integer user_id;
+    private final List<String> rentals;
+    private final List<Integer> rental_ids;
 
     private TenantDTO(Builder builder) {
         this.id = builder.id;
@@ -13,6 +17,8 @@ public class TenantDTO {
         this.phone = builder.phone;
         this.job = builder.job;
         this.user_id = builder.userId;
+        this.rentals = builder.rentals;
+        this.rental_ids = builder.rentalIds;
     }
 
     public Integer getId() {
@@ -35,12 +41,22 @@ public class TenantDTO {
         return user_id;
     }
 
+    public List<String> getRentals() {
+        return rentals;
+    }
+
+    public List<Integer> getRentalIds() {
+        return rental_ids;
+    }
+
     public static class Builder {
         private Integer id;
         private String name;
         private Integer phone;
         private String job;
         private Integer userId;
+        private List<String> rentals;
+        private List<Integer> rentalIds;
 
         public Builder setId(Integer id) {
             this.id = id;
@@ -64,6 +80,16 @@ public class TenantDTO {
 
         public Builder setUserId(Integer userId) {
             this.userId = userId;
+            return this;
+        }
+
+        public Builder setRentals(List<String> rentals) {
+            this.rentals = rentals;
+            return this;
+        }
+
+        public Builder setRentalIds(List<Integer> rentalIds) {
+            this.rentalIds = rentalIds;
             return this;
         }
 

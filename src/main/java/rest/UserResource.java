@@ -88,6 +88,34 @@ public class UserResource extends Resource {
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(userDtosToJson).build();
     }
 
+    @GET
+    @RolesAllowed("user")
+    @Path("user-rentals")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getRentalsByUser() {
+        int userId = Integer.parseInt(securityContext.getUserPrincipal().getName());
+        List<Rental> rentals;
+        try {
+            rentals = facade.getRentalsByUserId(userId);
+        } catch (EntityNotFoundException exception) {
+            throw new NotFoundException("No rentals could be found from current user");
+        }
+        List<RentalDTO> rentalDTOS = new ArrayList<>();
+        for (Rental rental : rentals) {
+            rentalDTOS.add(new RentalDTO.Builder()
+                    .setId(rental.getId())
+                    .setStartDate(rental.getStartDate())
+                    .setEndDate(rental.getEndDate())
+                    .setPriceAnnual(rental.getPriceAnnual())
+                    .setDeposit(rental.getDeposit())
+                    .setContactPerson(rental.getContactPerson())
+                    .setHouseId(rental.getHouse().getId())
+                    .build());
+        }
+        String rentalDTOsToJson = GSON.toJson(rentalDTOS);
+        return Response.status(HttpStatus.OK_200.getStatusCode()).entity(rentalDTOsToJson).build();
+    }
+
     @PUT
     @RolesAllowed({"admin"})
     @Path("{id}")
