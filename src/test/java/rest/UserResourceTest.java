@@ -4,6 +4,7 @@ import dtos.RentalDTO;
 import dtos.UserDTO;
 import entities.Rental;
 import entities.Role;
+import entities.Tenant;
 import entities.User;
 import io.restassured.http.ContentType;
 import org.glassfish.grizzly.http.util.HttpStatus;
@@ -185,6 +186,41 @@ public class UserResourceTest extends ResourceTestEnvironment {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED_401.getStatusCode());
+    }
+
+    @Test
+    public void getRentalsByUserIdTest() {
+        Rental rentalA = createAndPersistRental();
+        Rental rentalB = createAndPersistRental();
+        Rental rentalC = createAndPersistRental();
+        Tenant tenant = createAndPersistTenant();
+        rentalA.getTenants().add(tenant);
+        rentalB.getTenants().add(tenant);
+        update(rentalA);
+        update(rentalB);
+        login(tenant.getUser());
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .get(BASE_URL+"user-rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("rentals", hasSize(2))
+                .body("$", hasItem(hasEntry("contact_person", rentalA.getContactPerson())))
+                .body("$", hasItem(hasEntry("contact_person", rentalB.getContactPerson())));
+    }
+
+    @Test
+    public void getRentalsByUserIdWhenUnauthenticatedTest() {
+        given()
+                .when()
+                .get(BASE_URL+"user-rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN_403.getStatusCode());
     }
 
     @Test

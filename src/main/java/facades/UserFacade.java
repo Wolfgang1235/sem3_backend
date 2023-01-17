@@ -138,6 +138,24 @@ public class UserFacade {
         return allUsers;
     }
 
+    public List<Rental> getRentalsByUserId(int id) {
+        EntityManager em = emf.createEntityManager();
+
+        TypedQuery<Rental> query = em.createQuery("SELECT r FROM Rental r " +
+                "JOIN r.tenants t " +
+                "JOIN t.user u " +
+                "WHERE u.id=:user_id", Rental.class);
+        query.setParameter("user_id", id);
+        List<Rental> rentals = query.getResultList();
+        em.close();
+
+        if (rentals.size() == 0) {
+            throw new EntityNotFoundException("User with id: "+id+" does not exist in database");
+        }
+
+        return rentals;
+    }
+
     public Rental createRental(Rental rental) {
         EntityManager em = emf.createEntityManager();
 
@@ -187,4 +205,5 @@ public class UserFacade {
             em.close();
         }
     }
+
 }
