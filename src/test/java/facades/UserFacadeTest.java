@@ -1,6 +1,9 @@
 package facades;
 
 import TestEnvironment.TestEnvironment;
+import entities.House;
+import entities.Rental;
+import entities.Tenant;
 import entities.User;
 import errorhandling.IllegalAgeException;
 import errorhandling.InvalidUsernameException;
@@ -206,14 +209,21 @@ public class UserFacadeTest extends TestEnvironment {
         assertThrows(EntityNotFoundException.class,()-> facade.getUserById(nonExistingId));
     }
 
-   @Test
-   public void getAllUsersTest() {
-        User userA = createAndPersistUser();
+    @Test
+    public void getAllUsersTest() {
+        User user = createAndPersistUser();
 
         List<User> actual = facade.getAllUsers();
 
-        assertTrue(actual.contains(userA));
+        assertTrue(actual.contains(user));
+    }
 
-   }
+    @Test
+    public void createRentalTest() {
+        Rental rental = createRental();
 
+        Rental actual = facade.createRental(rental);
+
+        assertDatabaseHasEntity(actual, actual.getId());
+    }
 }

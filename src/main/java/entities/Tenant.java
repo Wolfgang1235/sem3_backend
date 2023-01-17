@@ -4,12 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tenants")
-public class Tenant {
+public class Tenant implements entities.Entity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -38,7 +37,17 @@ public class Tenant {
     @JoinTable(name = "tenants_rentals",
             joinColumns = @JoinColumn(name = "tenant_id"),
             inverseJoinColumns = @JoinColumn(name = "rental_id"))
-    private Set<Rental> rentals = new LinkedHashSet<>();
+    private List<Rental> rentals = new ArrayList<>();
+
+    public Tenant() {
+    }
+
+    public Tenant(String name, Integer phone, String job, User user) {
+        this.name = name;
+        this.phone = phone;
+        this.job = job;
+        this.user = user;
+    }
 
     public Integer getId() {
         return id;
@@ -80,12 +89,24 @@ public class Tenant {
         this.user = user;
     }
 
-    public Set<Rental> getRentals() {
+    public List<Rental> getRentals() {
         return rentals;
     }
 
-    public void setRentals(Set<Rental> rentals) {
+    public void setRentals(List<Rental> rentals) {
         this.rentals = rentals;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tenant)) return false;
+        Tenant tenant = (Tenant) o;
+        return Objects.equals(getId(), tenant.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }
