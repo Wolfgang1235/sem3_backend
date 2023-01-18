@@ -3,8 +3,10 @@ package rest;
 import TestEnvironment.TestEnvironment;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dtos.HouseDTO;
 import dtos.RentalDTO;
 import dtos.UserDTO;
+import entities.House;
 import entities.Rental;
 import entities.Role;
 import entities.User;
@@ -98,6 +100,24 @@ public class ResourceTestEnvironment extends TestEnvironment {
                 .setContactPerson(rental.getContactPerson())
                 .setHouseId(rental.getHouse().getId())
                 .setTenantIds(rental.getTenantIds())
+                .build();
+    }
+
+    protected HouseDTO createHouseDTOFromHouse(House house) {
+        return new HouseDTO.Builder()
+                .setId(house.getId())
+                .setAddress(house.getAddress())
+                .setCity(house.getCity())
+                .setNumberOfRooms(house.getNumberOfRooms())
+                .build();
+    }
+
+    protected HouseDTO createHouseDTOFromRental(Rental rental) {
+        return new HouseDTO.Builder()
+                .setId(rental.getHouse().getId())
+                .setAddress(rental.getHouse().getAddress())
+                .setCity(rental.getHouse().getCity())
+                .setNumberOfRooms(rental.getHouse().getNumberOfRooms())
                 .build();
     }
 }

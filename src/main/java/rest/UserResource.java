@@ -5,14 +5,8 @@ import entities.House;
 import entities.Rental;
 import entities.Tenant;
 import entities.User;
-import errorhandling.IllegalAgeException;
-import errorhandling.InvalidPasswordException;
-import errorhandling.InvalidUsernameException;
-import errorhandling.UniqueException;
-import facades.HouseFacade;
-import facades.RoleFacade;
-import facades.TenantFacade;
-import facades.UserFacade;
+import errorhandling.*;
+import facades.*;
 import org.glassfish.grizzly.http.util.HttpStatus;
 
 import javax.annotation.security.RolesAllowed;
@@ -28,6 +22,7 @@ public class UserResource extends Resource {
     private final RoleFacade roleFacade = RoleFacade.getFacade(EMF);
     private final HouseFacade houseFacade = HouseFacade.getFacade(EMF);
     private final TenantFacade tenantFacade = TenantFacade.getFacade(EMF);
+    private final RentalFacade rentalFacade = RentalFacade.getFacade(EMF);
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
@@ -195,6 +190,43 @@ public class UserResource extends Resource {
         rentalDTO = buildStandardRentalDTO(rental);
         String rentalToJson = GSON.toJson(rentalDTO);
         return Response.status(HttpStatus.CREATED_201.getStatusCode()).entity(rentalToJson).build();
+    }
+
+    @PUT
+    @RolesAllowed("admin")
+    @Path("rentals/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response putRental(@PathParam("id") int id, String rentalFromJson) {
+        RentalDTO rentalDTO = GSON.fromJson(rentalFromJson, RentalDTO.class);
+        Rental rental;
+
+        try {
+            rental = rentalFacade.getRentalById(id);
+            House house = houseFacade.getHouseById(rentalDTO.getHouse().getId());
+
+            rental.setStartDate(rentalDTO.getStartDate());
+            rental.setEndDate(rentalDTO.getEndDate());
+            rental.setPriceAnnual(rentalDTO.getPriceAnnual());
+            rental.setDeposit(rentalDTO.getDeposit());
+            rental.setContactPerson(rentalDTO.getContactPerson());
+            rental.setHouse(house);
+
+            facade.updateRental(rental);
+
+        } catch (EntityNotFoundException entityNotFoundException) {
+            throw new NotFoundException("Rental does not exist");
+
+        } catch (InvalidDateException exception) {
+            return Response.status(HttpStatus.NO_CONTENT_204.getStatusCode()).build();
+
+        } catch (NullPointerException nullPointerException) {
+            throw new NotFoundException("House does not exist");
+        }
+
+
+        RentalDTO updatedRentalDTO = buildStandardRentalDTO(rental);
+        return Response.status(HttpStatus.OK_200.getStatusCode()).entity(GSON.toJson(updatedRentalDTO)).build();
     }
 
     @DELETE

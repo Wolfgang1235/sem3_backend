@@ -210,37 +210,6 @@ public class TestEnvironment {
                 property+" with value "+value+" in the database");
     }
 
-//
-//    protected void assertDatabaseHasEntityWith(Entity persistedEntity, String property, int value) {
-//        assertDatabaseHasEntity(persistedEntity,persistedEntity.getId());
-//
-//        assertDatabaseHasPropertyAndValue(persistedEntity,property,value);
-//    }
-//
-//    protected void assertDatabaseHasPropertyAndValue(Entity persistedEntity, String property, int value) {
-//        EntityManager em = emf.createEntityManager();
-//
-//        TypedQuery<Entity> query = em.createQuery(
-//                "SELECT e FROM " + persistedEntity.getClass().getSimpleName()
-//                        + " e WHERE e." + property + " = :value " +
-//                        "AND e.id =:id",Entity.class);
-//
-//        query.setParameter("value",value);
-//        query.setParameter("id",persistedEntity.getId());
-//
-//        Entity entity = null;
-//        try {
-//            entity = query.getSingleResult();
-//        } catch (Exception e) {
-//            //
-//        }finally {
-//            em.close();
-//        }
-//
-//        assertNotNull(entity, persistedEntity.getClass().getSimpleName()+" does not have "+
-//                property+" with value "+value+" in the database");
-//    }
-
     protected void assertDatabaseHasEntitiesRelated(Entity entity, Entity related) {
         EntityManager em = emf.createEntityManager();
 
