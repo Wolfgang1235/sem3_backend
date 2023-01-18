@@ -45,5 +45,4 @@ public class RentalFacade {
 
         return rentals;
     }
-
 }

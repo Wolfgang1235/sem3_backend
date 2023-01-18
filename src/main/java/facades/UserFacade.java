@@ -126,19 +126,24 @@ public class UserFacade {
 
     public User getUserById(int id) {
         EntityManager em = emf.createEntityManager();
+
         User user = em.find(User.class,id);
         em.close();
+
         if (user == null) {
             throw new EntityNotFoundException("User with id: "+id+" does not exist in database");
         }
+
         return user;
     }
 
     public List<User> getAllUsers() {
         EntityManager em = emf.createEntityManager();
+
         TypedQuery<User> query = em.createQuery("SELECT u FROM User u",User.class);
         List<User> allUsers = query.getResultList();
         em.close();
+
         return allUsers;
     }
 
@@ -176,11 +181,14 @@ public class UserFacade {
             em.getTransaction().begin();
             em.persist(rental);
             em.getTransaction().commit();
+
         } catch (ParseException exception) {
             throw new InvalidDateException("The date format is not valid");
+
         } finally {
             em.close();
         }
+
         return rental;
     }
 
@@ -204,8 +212,10 @@ public class UserFacade {
             em.getTransaction().begin();
             em.merge(rental);
             em.getTransaction().commit();
+
         } catch (ParseException exception) {
             throw new InvalidDateException("The date format is not valid");
+
         } finally {
             em.close();
         }
@@ -221,6 +231,7 @@ public class UserFacade {
         }
         try {
             deleteEntity(user,em);
+
         } catch (NoResultException exception) {
             throw new EntityNotFoundException("User with id: "+id+" does not exist");
         }
