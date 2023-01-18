@@ -250,6 +250,18 @@ public class UserFacadeTest extends TestEnvironment {
     }
 
     @Test
+    public void updateRentalStartAndEndDateTest() {
+        Rental rental = createAndPersistRental();
+        rental.setStartDate(faker.bothify("1#/0#/202#"));
+        rental.setEndDate(faker.bothify("0#/0#/203#"));
+
+        facade.updateRental(rental);
+
+        assertDatabaseHasEntityWith(rental, "startDate", rental.getStartDate());
+        assertDatabaseHasEntityWith(rental, "endDate", rental.getEndDate());
+    }
+
+    @Test
     public void deleteRentalTest() {
         Rental rental = createAndPersistRental();
 

@@ -169,6 +169,18 @@ public class UserFacade {
         return rental;
     }
 
+    public void updateRental(Rental rental) {
+        EntityManager em = emf.createEntityManager();
+
+        try {
+            em.getTransaction().begin();
+            em.merge(rental);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+    }
+
     public void deleteUser(Integer id) {
         EntityManager em = emf.createEntityManager();
 
@@ -205,5 +217,4 @@ public class UserFacade {
             em.close();
         }
     }
-
 }

@@ -16,16 +16,16 @@ public class Rental implements entities.Entity {
 
     @Size(max = 75)
     @NotNull
-    @Column(name = "startDate", nullable = false, length = 75)
+    @Column(name = "start_date", nullable = false, length = 75)
     private String startDate;
 
     @Size(max = 75)
     @NotNull
-    @Column(name = "endDate", nullable = false, length = 75)
+    @Column(name = "end_date", nullable = false, length = 75)
     private String endDate;
 
     @NotNull
-    @Column(name = "priceAnnual", nullable = false)
+    @Column(name = "price_annual", nullable = false)
     private Integer priceAnnual;
 
     @NotNull
@@ -34,7 +34,7 @@ public class Rental implements entities.Entity {
 
     @Size(max = 45)
     @NotNull
-    @Column(name = "contactPerson", nullable = false, length = 45)
+    @Column(name = "contact_person", nullable = false, length = 45)
     private String contactPerson;
 
     @NotNull

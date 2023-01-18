@@ -25,7 +25,7 @@ public class House implements entities.Entity {
     private String city;
 
     @NotNull
-    @Column(name = "numberOfRooms", nullable = false)
+    @Column(name = "number_of_rooms", nullable = false)
     private Integer numberOfRooms;
 
     @OneToMany(mappedBy = "houses")
