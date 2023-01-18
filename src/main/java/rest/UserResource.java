@@ -86,37 +86,6 @@ public class UserResource extends Resource {
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(userDtosToJson).build();
     }
 
-    @GET
-    @RolesAllowed("user")
-    @Path("user-rentals")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response getRentalsByUser() {
-        int userId = Integer.parseInt(securityContext.getUserPrincipal().getName());
-        List<Rental> rentals;
-
-        try {
-            rentals = facade.getRentalsByUserId(userId);
-        } catch (EntityNotFoundException exception) {
-            throw new NotFoundException("No rentals could be found from current user");
-        }
-
-        List<RentalDTO> rentalDTOS = new ArrayList<>();
-        for (Rental rental : rentals) {
-            rentalDTOS.add(new RentalDTO.Builder()
-                    .setId(rental.getId())
-                    .setStartDate(rental.getStartDate())
-                    .setEndDate(rental.getEndDate())
-                    .setPriceAnnual(rental.getPriceAnnual())
-                    .setDeposit(rental.getDeposit())
-                    .setContactPerson(rental.getContactPerson())
-                    .setHouseId(rental.getHouse().getId())
-                    .build());
-        }
-
-        String rentalDTOsToJson = GSON.toJson(rentalDTOS);
-        return Response.status(HttpStatus.OK_200.getStatusCode()).entity(rentalDTOsToJson).build();
-    }
-
     @PUT
     @RolesAllowed({"admin"})
     @Path("{id}")
@@ -162,13 +131,72 @@ public class UserResource extends Resource {
     @DELETE
     @RolesAllowed("admin")
     @Path("{id}")
-    public Response deletePerson(@PathParam("id") int id) {
+    public Response deleteUser(@PathParam("id") int id) {
         try {
             facade.deleteUser(id);
         } catch (EntityNotFoundException exception) {
 
         }
         return Response.noContent().build();
+    }
+
+    @GET
+    @RolesAllowed("user")
+    @Path("user-rentals")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getRentalsByUser() {
+        int userId = Integer.parseInt(securityContext.getUserPrincipal().getName());
+        List<Rental> rentals;
+
+        try {
+            rentals = facade.getRentalsByUserId(userId);
+        } catch (EntityNotFoundException exception) {
+            throw new NotFoundException("No rentals could be found from current user");
+        }
+
+        List<RentalDTO> rentalDTOS = new ArrayList<>();
+        for (Rental rental : rentals) {
+            rentalDTOS.add(new RentalDTO.Builder()
+                    .setId(rental.getId())
+                    .setStartDate(rental.getStartDate())
+                    .setEndDate(rental.getEndDate())
+                    .setPriceAnnual(rental.getPriceAnnual())
+                    .setDeposit(rental.getDeposit())
+                    .setContactPerson(rental.getContactPerson())
+                    .setHouseId(rental.getHouse().getId())
+                    .build());
+        }
+
+        String rentalDTOsToJson = GSON.toJson(rentalDTOS);
+        return Response.status(HttpStatus.OK_200.getStatusCode()).entity(rentalDTOsToJson).build();
+    }
+
+    @GET
+    @RolesAllowed("admin")
+    @Path("tenants/{houseId}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getTenantsByHouseId(@PathParam("houseId") int houseId) {
+        List<Tenant> tenants;
+
+        try {
+            tenants = facade.getTenantsByHouseId(houseId);
+        } catch (EntityNotFoundException exception) {
+            return Response.status(HttpStatus.NO_CONTENT_204.getStatusCode()).build();
+        }
+
+        List<TenantDTO> tenantDTOS = new ArrayList<>();
+        for (Tenant tenant : tenants) {
+            tenantDTOS.add(new TenantDTO.Builder()
+                    .setId(tenant.getId())
+                    .setName(tenant.getName())
+                    .setPhone(tenant.getPhone())
+                    .setJob(tenant.getJob())
+                    .setUserId(tenant.getUser().getId())
+                    .build());
+        }
+
+        String tenantDTOsToJson = GSON.toJson(tenantDTOS);
+        return Response.status(HttpStatus.OK_200.getStatusCode()).entity(tenantDTOsToJson).build();
     }
 
     @POST
