@@ -1,10 +1,8 @@
 package dtos;
 
 public class LoginDTO {
-
     private final String username;
     private final String password;
-
     private final String token;
 
     private LoginDTO(Builder builder) {
@@ -19,10 +17,6 @@ public class LoginDTO {
 
     public String getPassword() {
         return password;
-    }
-
-    public String getToken() {
-        return token;
     }
 
     public static class Builder {
@@ -52,5 +46,4 @@ public class LoginDTO {
             return new LoginDTO(this);
         }
     }
-
 }

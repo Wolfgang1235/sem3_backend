@@ -55,10 +55,6 @@ public class RentalDTO {
         return house;
     }
 
-    public List<String> getTenants() {
-        return tenants;
-    }
-
     public Integer getHouseId() {
         return house_id;
     }
