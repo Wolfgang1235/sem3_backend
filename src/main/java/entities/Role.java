@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Table(name = "roles")
 public class Role implements Serializable, entities.Entity {
-
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -49,14 +48,6 @@ public class Role implements Serializable, entities.Entity {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public List<User> getUserList() {
-        return userList;
-    }
-
-    public void setUserList(List<User> userList) {
-        this.userList = userList;
     }
 
     @Override

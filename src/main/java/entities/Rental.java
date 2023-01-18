@@ -122,10 +122,6 @@ public class Rental implements entities.Entity {
         return tenants;
     }
 
-    public void setTenants(List<Tenant> tenants) {
-        this.tenants = tenants;
-    }
-
     public List<Integer> getTenantIds() {
         List<Integer> tenantIds = new ArrayList<>();
         tenants.forEach((tenant) -> tenantIds.add(tenant.getId()));
