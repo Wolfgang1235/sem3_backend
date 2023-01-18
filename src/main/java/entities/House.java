@@ -28,7 +28,7 @@ public class House implements entities.Entity {
     @Column(name = "number_of_rooms", nullable = false)
     private Integer numberOfRooms;
 
-    @OneToMany(mappedBy = "houses")
+    @OneToMany(mappedBy = "house")
     private List<Rental> rentals = new ArrayList<>();
 
     public House() {

@@ -40,7 +40,7 @@ public class Rental implements entities.Entity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "houses_id", nullable = false)
-    private House houses;
+    private House house;
 
     @ManyToMany
     @JoinTable(name = "tenants_rentals",
@@ -52,13 +52,13 @@ public class Rental implements entities.Entity {
     }
 
     public Rental(String startDate, String endDate, Integer priceAnnual, Integer deposit,
-                  String contactPerson, House houses, List<Tenant> tenants) {
+                  String contactPerson, House house, List<Tenant> tenants) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.priceAnnual = priceAnnual;
         this.deposit = deposit;
         this.contactPerson = contactPerson;
-        this.houses = houses;
+        this.house = house;
         this.tenants = tenants;
     }
 
@@ -111,11 +111,11 @@ public class Rental implements entities.Entity {
     }
 
     public House getHouse() {
-        return houses;
+        return house;
     }
 
-    public void setHouses(House houses) {
-        this.houses = houses;
+    public void setHouse(House house) {
+        this.house = house;
     }
 
     public List<Tenant> getTenants() {

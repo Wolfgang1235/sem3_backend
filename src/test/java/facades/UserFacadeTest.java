@@ -6,6 +6,7 @@ import entities.Rental;
 import entities.Tenant;
 import entities.User;
 import errorhandling.IllegalAgeException;
+import errorhandling.InvalidDateException;
 import errorhandling.InvalidUsernameException;
 
 import errorhandling.UniqueException;
@@ -250,7 +251,7 @@ public class UserFacadeTest extends TestEnvironment {
     }
 
     @Test
-    public void updateRentalStartAndEndDateTest() {
+    public void updateRentalStartAndEndDateTest() throws InvalidDateException {
         Rental rental = createAndPersistRental();
         rental.setStartDate(faker.bothify("1#/0#/202#"));
         rental.setEndDate(faker.bothify("0#/0#/203#"));
@@ -259,6 +260,44 @@ public class UserFacadeTest extends TestEnvironment {
 
         assertDatabaseHasEntityWith(rental, "startDate", rental.getStartDate());
         assertDatabaseHasEntityWith(rental, "endDate", rental.getEndDate());
+    }
+
+    @Test
+    public void updateRentalWithInvalidStartAndEndDateTest() {
+        Rental rental = createAndPersistRental();
+        rental.setStartDate(faker.bothify("??##?"));
+        rental.setEndDate(faker.bothify("??##?"));
+
+        assertThrows(InvalidDateException.class, ()-> facade.updateRental(rental));
+    }
+
+    @Test
+    public void updateRentalWithImpossibleStartAndEndDateTest() {
+        Rental rental = createAndPersistRental();
+        rental.setStartDate(faker.bothify("5#/6#/202#"));
+        rental.setEndDate(faker.bothify("6#/4#/203#"));
+
+        assertThrows(InvalidDateException.class, ()-> facade.updateRental(rental));
+    }
+
+    @Test
+    public void updateRentalWithStartDateWhichExceedsEndDateTest() {
+        Rental rental = createAndPersistRental();
+        rental.setStartDate(faker.bothify("1#/0#/202#"));
+        rental.setEndDate(faker.bothify("1#/0#/201#"));
+
+        assertThrows(InvalidDateException.class, ()-> facade.updateRental(rental));
+    }
+
+    @Test
+    public void updateRentalWithNewHouseTest() throws InvalidDateException {
+        Rental rental = createAndPersistRental();
+        House house = createAndPersistHouse();
+        rental.setHouse(house);
+
+        facade.updateRental(rental);
+
+        assertDatabaseHasEntitiesRelated(rental, house);
     }
 
     @Test

@@ -7,10 +7,14 @@ import javax.persistence.*;
 import entities.Rental;
 import entities.User;
 import errorhandling.IllegalAgeException;
+import errorhandling.InvalidDateException;
 import errorhandling.InvalidUsernameException;
 import errorhandling.UniqueException;
 import security.errorhandling.AuthenticationException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class UserFacade {
@@ -169,13 +173,24 @@ public class UserFacade {
         return rental;
     }
 
-    public void updateRental(Rental rental) {
+    public void updateRental(Rental rental) throws InvalidDateException {
         EntityManager em = emf.createEntityManager();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+        dateFormat.setLenient(false);
 
         try {
+            Date startDate = dateFormat.parse(rental.getStartDate());
+            Date endDate = dateFormat.parse(rental.getEndDate());
+
+            if (startDate.after(endDate) || startDate.equals(endDate)) {
+                throw new InvalidDateException("Start date is not before end date");
+            }
+
             em.getTransaction().begin();
             em.merge(rental);
             em.getTransaction().commit();
+        } catch (ParseException exception) {
+            throw new InvalidDateException("The data format is not valid");
         } finally {
             em.close();
         }
