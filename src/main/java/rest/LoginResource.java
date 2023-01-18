@@ -25,7 +25,7 @@ import errorhandling.GenericExceptionMapper;
 
 @Path("login")
 public class LoginResource extends Resource {
-    public static final int TOKEN_EXPIRE_TIME = 1000 * 60 * 30; //30 min
+    public static final int TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
     public static final UserFacade USER_FACADE = UserFacade.getFacade(EMF);
 
     @POST
@@ -55,7 +55,7 @@ public class LoginResource extends Resource {
 
     private String createToken(int userId, String userName, List<String> roles) throws JOSEException {
         String rolesAsString = getListAsString(roles);
-        String issuer = "ThomasStudios";
+        String issuer = "AndreasStudios";
 
         JWSSigner signer = new MACSigner(SharedSecret.getSharedKey());
         Date date = new Date();

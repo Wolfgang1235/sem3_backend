@@ -24,6 +24,7 @@ public class TenantResource extends Resource {
     public Response getAllTenants() {
         List<Tenant> tenants = facade.getAllTenants();
         List<TenantDTO> tenantDTOS = new ArrayList<>();
+
         for (Tenant tenant : tenants) {
             tenantDTOS.add(new TenantDTO.Builder()
                     .setId(tenant.getId())
@@ -33,6 +34,7 @@ public class TenantResource extends Resource {
                     .setUserId(tenant.getUser().getId())
                     .build());
         }
+
         String tenantDTOsToJson = GSON.toJson(tenantDTOS);
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(tenantDTOsToJson).build();
     }

@@ -42,6 +42,7 @@ public class UserResource extends Resource {
             throw new BadRequestException(e.getMessage());
         }
         userDTO = buildStandardUserDTO(user);
+
         String userToJson = GSON.toJson(userDTO);
         return Response.status(HttpStatus.CREATED_201.getStatusCode()).entity(userToJson).build();
     }
@@ -53,6 +54,7 @@ public class UserResource extends Resource {
     public Response getMe() {
         User user;
         int id = Integer.parseInt(securityContext.getUserPrincipal().getName());
+
         try {
             user = facade.getUserById(id);
         } catch (EntityNotFoundException e) {
@@ -70,8 +72,8 @@ public class UserResource extends Resource {
     public Response getAllUsers() {
         List<User> allUsers = facade.getAllUsers();
         List<UserDTO> allUserDTOs = new ArrayList<>();
-        for (User user : allUsers) {
 
+        for (User user : allUsers) {
             allUserDTOs.add(new UserDTO.Builder()
                     .setId(user.getId())
                     .setUsername(user.getUsername())
@@ -79,6 +81,7 @@ public class UserResource extends Resource {
                     .setRoles(user.getRolesAsStringList())
                     .build());
         }
+
         String userDtosToJson = GSON.toJson(allUserDTOs);
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(userDtosToJson).build();
     }
@@ -90,11 +93,13 @@ public class UserResource extends Resource {
     public Response getRentalsByUser() {
         int userId = Integer.parseInt(securityContext.getUserPrincipal().getName());
         List<Rental> rentals;
+
         try {
             rentals = facade.getRentalsByUserId(userId);
         } catch (EntityNotFoundException exception) {
             throw new NotFoundException("No rentals could be found from current user");
         }
+
         List<RentalDTO> rentalDTOS = new ArrayList<>();
         for (Rental rental : rentals) {
             rentalDTOS.add(new RentalDTO.Builder()
@@ -107,6 +112,7 @@ public class UserResource extends Resource {
                     .setHouseId(rental.getHouse().getId())
                     .build());
         }
+
         String rentalDTOsToJson = GSON.toJson(rentalDTOS);
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(rentalDTOsToJson).build();
     }
@@ -119,6 +125,7 @@ public class UserResource extends Resource {
     public Response updateUser(String userFromJson, @PathParam("id") int id) {
         UserDTO userDTO = GSON.fromJson(userFromJson, UserDTO.class);
         User user;
+
         try {
             user = facade.getUserById(id);
 
@@ -133,17 +140,21 @@ public class UserResource extends Resource {
 
         }catch (EntityNotFoundException entityNotFoundException){
             throw new BadRequestException("User does not exist");
+
         } catch (UniqueException uniqueException) {
             throw new WebApplicationException("Chosen username is already in use",
                     HttpStatus.CONFLICT_409.getStatusCode());
+
         } catch (IllegalAgeException illegalAgeException) {
             throw new WebApplicationException("You need to be between 18 and 80 years old to use this site",
                     HttpStatus.CONFLICT_409.getStatusCode());
+
         } catch (InvalidUsernameException invalidUsernameException) {
             throw new WebApplicationException("Your username was either too long or too short, " +
                     "it should be between 3 and 20 characters",
                     HttpStatus.CONFLICT_409.getStatusCode());
         }
+
         UserDTO updatedUserDTO = buildStandardUserDTO(user);
         return Response.ok().entity(GSON.toJson(updatedUserDTO)).build();
     }
@@ -155,7 +166,7 @@ public class UserResource extends Resource {
         try {
             facade.deleteUser(id);
         } catch (EntityNotFoundException exception) {
-            //
+
         }
         return Response.noContent().build();
     }
@@ -165,7 +176,7 @@ public class UserResource extends Resource {
     @Path("rentals")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response postRental(String rentalFromJson) throws InvalidDateException {
+    public Response postRental(String rentalFromJson) {
         RentalDTO rentalDTO = GSON.fromJson(rentalFromJson, RentalDTO.class);
         House house;
         List<Tenant> tenants = new ArrayList<>();
@@ -176,7 +187,6 @@ public class UserResource extends Resource {
             for (Integer tenantId : rentalDTO.getTenantIds()) {
                 tenants.add(tenantFacade.getTenantById(tenantId));
             }
-
             rental = new Rental(
                     rentalDTO.getStartDate(),
                     rentalDTO.getEndDate(),
@@ -190,11 +200,12 @@ public class UserResource extends Resource {
 
         } catch (EntityNotFoundException entityNotFoundException) {
             throw new NotFoundException("The house is no where to be found");
+
         } catch (InvalidDateException invalidDateException) {
             return Response.status(HttpStatus.NO_CONTENT_204.getStatusCode()).build();
         }
-
         rentalDTO = buildStandardRentalDTO(rental);
+
         String rentalToJson = GSON.toJson(rentalDTO);
         return Response.status(HttpStatus.CREATED_201.getStatusCode()).entity(rentalToJson).build();
     }
@@ -231,7 +242,6 @@ public class UserResource extends Resource {
             throw new NotFoundException("House does not exist");
         }
 
-
         RentalDTO updatedRentalDTO = buildStandardRentalDTO(rental);
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(GSON.toJson(updatedRentalDTO)).build();
     }
@@ -243,6 +253,7 @@ public class UserResource extends Resource {
         try {
             facade.deleteRental(id);
         } catch (EntityNotFoundException exception) {
+
         }
         return Response.status(HttpStatus.NO_CONTENT_204.getStatusCode()).build();
     }

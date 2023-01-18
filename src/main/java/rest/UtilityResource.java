@@ -17,7 +17,6 @@ public class UtilityResource extends Resource{
     public Response populate(String populateJson) throws AuthenticationException {
         PopulateDTO populateDTO = GSON.fromJson(populateJson, PopulateDTO.class);
 
-        //Change secret to something secret in your own project!!!!!!!
         if (!populateDTO.getSecret().equals("exam3sem")) {
             throw new AuthenticationException("Wrong secret");
         }

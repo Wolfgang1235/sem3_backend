@@ -24,6 +24,7 @@ public class HouseResource extends Resource {
     public Response getAllHouses() {
         List<House> houses = facade.getAllHouses();
         List<HouseDTO> houseDTOS = new ArrayList<>();
+
         for (House house : houses) {
             houseDTOS.add(new HouseDTO.Builder()
                     .setId(house.getId())
@@ -32,7 +33,9 @@ public class HouseResource extends Resource {
                     .setNumberOfRooms(house.getNumberOfRooms())
                     .build());
         }
+
         String houseDTOsToJson = GSON.toJson(houseDTOS);
+
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(houseDTOsToJson).build();
     }
 }
