@@ -5,6 +5,7 @@ import entities.Rental;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +20,20 @@ public class RentalFacadeTest extends TestEnvironment {
     public static void setUpClass() {
         TestEnvironment.setUpClass();
         facade = RentalFacade.getFacade(emf);
+    }
+
+    @Test
+    public void getRentalByIdTest() {
+        Rental expected = createAndPersistRental();
+
+        Rental actual = facade.getRentalById(expected.getId());
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void getRentalByNonExistingIdTest() {
+        assertThrows(EntityNotFoundException.class, ()-> facade.getRentalById(nonExistingId));
     }
 
     @Test

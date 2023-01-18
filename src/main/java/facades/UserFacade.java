@@ -178,6 +178,10 @@ public class UserFacade {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
         dateFormat.setLenient(false);
 
+        if (rental == null) {
+            throw new EntityNotFoundException("The entity is null");
+        }
+
         try {
             Date startDate = dateFormat.parse(rental.getStartDate());
             Date endDate = dateFormat.parse(rental.getEndDate());

@@ -301,6 +301,11 @@ public class UserFacadeTest extends TestEnvironment {
     }
 
     @Test
+    public void updateNonExistingRentalTest() {
+        assertThrows(EntityNotFoundException.class, ()-> facade.updateRental(null));
+    }
+
+    @Test
     public void deleteRentalTest() {
         Rental rental = createAndPersistRental();
 

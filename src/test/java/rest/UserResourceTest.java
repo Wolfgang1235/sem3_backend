@@ -1,11 +1,9 @@
 package rest;
 
+import dtos.HouseDTO;
 import dtos.RentalDTO;
 import dtos.UserDTO;
-import entities.Rental;
-import entities.Role;
-import entities.Tenant;
-import entities.User;
+import entities.*;
 import io.restassured.http.ContentType;
 import org.glassfish.grizzly.http.util.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -327,6 +325,271 @@ public class UserResourceTest extends ResourceTestEnvironment {
                 .body(GSON.toJson(rentalDTO))
                 .when()
                 .post(BASE_URL+"rentals")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode());
+    }
+
+    @Test
+    public void putRentalNewStartAndEndDateTest() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("0#/0#/200#"))
+                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("start_date", equalTo(rentalDTO.getStartDate()))
+                .body("end_date", equalTo(rentalDTO.getEndDate()));
+    }
+
+    @Test
+    public void putRentalWhenUnauthenticatedTest() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("0#/0#/200#"))
+                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN_403.getStatusCode());
+    }
+
+    @Test
+    public void putRentalWhenUnauthorizedTest() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("0#/0#/200#"))
+                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User user = createAndPersistUser();
+        login(user);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED_401.getStatusCode());
+    }
+
+    @Test
+    public void putWithNonExistingRentalId() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("0#/0#/200#"))
+                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+nonExistingId)
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode());
+    }
+
+    @Test
+    public void putRentalInvalidStartAndEndDateTest() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("???##?"))
+                .setEndDate(faker.bothify("???##?"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
+    public void putRentalImpossibleStartAndEndDateTest() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("9#/4#/200#"))
+                .setEndDate(faker.bothify("8#/6#/201#"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
+    public void putRentalStartDateWhenExceedingEndDateTest() {
+        Rental rental = createAndPersistRental();
+        HouseDTO houseDTO = createHouseDTOFromRental(rental);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(faker.bothify("1#/0#/202#"))
+                .setEndDate(faker.bothify("0#/0#/201#"))
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
+    public void putRentalWithNewHouseTest() {
+        Rental rental = createAndPersistRental();
+        House house = createAndPersistHouse();
+        HouseDTO houseDTO = createHouseDTOFromHouse(house);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(rental.getStartDate())
+                .setEndDate(rental.getEndDate())
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("house_id", equalTo(rentalDTO.getHouseId()));
+    }
+
+    @Test
+    public void putRentalWithNonExistingHouseTest() {
+        Rental rental = createAndPersistRental();
+        House house = createHouse();
+        HouseDTO houseDTO = createHouseDTOFromHouse(house);
+        RentalDTO rentalDTO = new RentalDTO.Builder()
+                .setId(rental.getId())
+                .setStartDate(rental.getStartDate())
+                .setEndDate(rental.getEndDate())
+                .setPriceAnnual(rental.getPriceAnnual())
+                .setDeposit(rental.getDeposit())
+                .setContactPerson(rental.getContactPerson())
+                .setHouse(houseDTO)
+                .setTenantIds(rental.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .put(BASE_URL+"rentals/"+rental.getId())
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND_404.getStatusCode());
