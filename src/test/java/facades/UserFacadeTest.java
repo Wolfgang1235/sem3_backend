@@ -242,12 +242,39 @@ public class UserFacadeTest extends TestEnvironment {
     }
 
     @Test
-    public void createRentalTest() {
+    public void createRentalTest() throws InvalidDateException {
         Rental rental = createRental();
 
         Rental actual = facade.createRental(rental);
 
         assertDatabaseHasEntity(actual, actual.getId());
+    }
+
+    @Test
+    public void createRentalWithInvalidStartAndEndDateTest() {
+        Rental rental = createRental();
+        rental.setStartDate(faker.bothify("??##??"));
+        rental.setEndDate(faker.bothify("??##??"));
+
+        assertThrows(InvalidDateException.class, ()-> facade.createRental(rental));
+    }
+
+    @Test
+    public void createRentalWithImpossibleStartAndEndDateTest() {
+        Rental rental = createRental();
+        rental.setStartDate(faker.bothify("7#/4#/202#"));
+        rental.setEndDate(faker.bothify("9#/6#/203#"));
+
+        assertThrows(InvalidDateException.class, ()-> facade.createRental(rental));
+    }
+
+    @Test
+    public void createRentalWithStartDateWhichExceedsEndDateTest() {
+        Rental rental = createRental();
+        rental.setStartDate(faker.bothify("0#/0#/204#"));
+        rental.setStartDate(faker.bothify("1#/0#/203#"));
+
+        assertThrows(InvalidDateException.class, ()-> facade.createRental(rental));
     }
 
     @Test

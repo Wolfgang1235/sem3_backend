@@ -160,13 +160,24 @@ public class UserFacade {
         return rentals;
     }
 
-    public Rental createRental(Rental rental) {
+    public Rental createRental(Rental rental) throws InvalidDateException {
         EntityManager em = emf.createEntityManager();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
+        dateFormat.setLenient(false);
 
         try {
+            Date startDate = dateFormat.parse(rental.getStartDate());
+            Date endDate = dateFormat.parse(rental.getEndDate());
+
+            if (startDate.after(endDate) || startDate.equals(endDate)) {
+                throw new InvalidDateException("Start date is equals to or after End date");
+            }
+
             em.getTransaction().begin();
             em.persist(rental);
             em.getTransaction().commit();
+        } catch (ParseException exception) {
+            throw new InvalidDateException("The date format is not valid");
         } finally {
             em.close();
         }
@@ -187,14 +198,14 @@ public class UserFacade {
             Date endDate = dateFormat.parse(rental.getEndDate());
 
             if (startDate.after(endDate) || startDate.equals(endDate)) {
-                throw new InvalidDateException("Start date is not before end date");
+                throw new InvalidDateException("Start date is equals to or after End date");
             }
 
             em.getTransaction().begin();
             em.merge(rental);
             em.getTransaction().commit();
         } catch (ParseException exception) {
-            throw new InvalidDateException("The data format is not valid");
+            throw new InvalidDateException("The date format is not valid");
         } finally {
             em.close();
         }

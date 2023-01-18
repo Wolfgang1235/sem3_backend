@@ -30,7 +30,7 @@ public class HouseFacade {
         em.close();
 
         if (house == null) {
-            throw new EntityNotFoundException("House with id: "+id+" does not exist in database");
+            throw new EntityNotFoundException("House does not exist in database");
         }
 
         return house;
