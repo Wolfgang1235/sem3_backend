@@ -57,8 +57,6 @@ public class User implements Serializable, entities.Entity {
     }
 
     private String validateAndHashPassword(String password) throws InvalidPasswordException {
-        //check if empty or null?
-
         if(password.length() < MINIMUM_PASSWORD_LENGTH) {
             throw new InvalidPasswordException("Password is too short");
         }
@@ -108,22 +106,6 @@ public class User implements Serializable, entities.Entity {
         this.username = username;
     }
 
-    public Tenant getTenants() {
-        return tenants;
-    }
-
-    public void setTenants(Tenant tenants) {
-        this.tenants = tenants;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
     public void addRole(Role role) {
         roles.add(role);
     }
@@ -140,6 +122,4 @@ public class User implements Serializable, entities.Entity {
     public int hashCode() {
         return Objects.hash(getId());
     }
-
-
 }

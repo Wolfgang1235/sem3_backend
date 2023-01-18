@@ -29,24 +29,8 @@ public class TenantDTO {
         return name;
     }
 
-    public Integer getPhone() {
-        return phone;
-    }
-
-    public String getJob() {
-        return job;
-    }
-
-    public Integer getUserId() {
-        return user_id;
-    }
-
     public List<String> getRentals() {
         return rentals;
-    }
-
-    public List<Integer> getRentalIds() {
-        return rental_ids;
     }
 
     public static class Builder {
@@ -85,11 +69,6 @@ public class TenantDTO {
 
         public Builder setRentals(List<String> rentals) {
             this.rentals = rentals;
-            return this;
-        }
-
-        public Builder setRentalIds(List<Integer> rentalIds) {
-            this.rentalIds = rentalIds;
             return this;
         }
 

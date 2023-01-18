@@ -69,16 +69,8 @@ public class Tenant implements entities.Entity {
         return phone;
     }
 
-    public void setPhone(Integer phone) {
-        this.phone = phone;
-    }
-
     public String getJob() {
         return job;
-    }
-
-    public void setJob(String job) {
-        this.job = job;
     }
 
     public User getUser() {

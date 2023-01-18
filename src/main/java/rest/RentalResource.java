@@ -25,6 +25,7 @@ public class RentalResource extends Resource {
     public Response getAllRentals() {
         List<Rental> rentals = facade.getAllRentals();
         List<RentalDTO> rentalDTOS = new ArrayList<>();
+
         for (Rental rental : rentals) {
             HouseDTO houseDTO = new HouseDTO.Builder()
                     .setId(rental.getHouse().getId())
@@ -32,6 +33,7 @@ public class RentalResource extends Resource {
                     .setCity(rental.getHouse().getCity())
                     .setNumberOfRooms(rental.getHouse().getNumberOfRooms())
                     .build();
+
             rentalDTOS.add(new RentalDTO.Builder()
                     .setId(rental.getId())
                     .setStartDate(rental.getStartDate())
@@ -43,6 +45,7 @@ public class RentalResource extends Resource {
                     .setTenantIds(rental.getTenantIds())
                     .build());
         }
+
         String rentalDTOsToJson = GSON.toJson(rentalDTOS);
         return Response.status(HttpStatus.OK_200.getStatusCode()).entity(rentalDTOsToJson).build();
     }

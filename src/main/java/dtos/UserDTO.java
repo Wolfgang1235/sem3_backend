@@ -9,8 +9,6 @@ public class UserDTO {
     private final Integer age;
     private final List<String> roles;
 
-    //Konstruktør er privat for at sikre indkapsling, det er kun fra den indre klasse 'Builder',
-    // hvorfra build() metoden kan kaldes og lave en DTO
     private UserDTO (Builder builder) {
         this.id = builder.id;
         this.username = builder.username;
@@ -46,7 +44,6 @@ public class UserDTO {
         private Integer age;
         private List<String> roles;
 
-        //Denne konstruktør er kun til test, lidt fy fy, hører ikke hjemme i produktionskoden
         public Builder(UserDTO userDTO) {
             this
                     .setId(userDTO.getId())
@@ -56,7 +53,6 @@ public class UserDTO {
                     .setRoles(userDTO.getRoles());
         }
 
-        //Fluent pattern bruges til at opbygge en Builder,
         public Builder() {
         }
 
@@ -85,7 +81,6 @@ public class UserDTO {
             return this;
         }
 
-        //build metoden returnerer en DTO hvis konstruktør tager den opbyggede Builder som parameter
         public UserDTO build() {
             return new UserDTO(this);
         }

@@ -23,18 +23,6 @@ public class HouseDTO {
         return id;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public Integer getNumber_of_rooms() {
-        return number_of_rooms;
-    }
-
     public List<Rental> getRentals() {
         return rentals;
     }

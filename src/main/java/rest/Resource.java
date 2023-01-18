@@ -8,7 +8,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 
 public class Resource {
-
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     protected static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory();
 
