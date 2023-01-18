@@ -5,6 +5,7 @@ import entities.Entity;
 import javax.persistence.*;
 
 import entities.Rental;
+import entities.Tenant;
 import entities.User;
 import errorhandling.IllegalAgeException;
 import errorhandling.InvalidDateException;
@@ -163,6 +164,23 @@ public class UserFacade {
         }
 
         return rentals;
+    }
+
+    public List<Tenant> getTenantsByHouseId(int id) {
+        EntityManager em = emf.createEntityManager();
+
+        TypedQuery<Tenant> query = em.createQuery("SELECT t FROM Tenant t " +
+                "JOIN t.rentals r " +
+                "JOIN  r.house h " +
+                "WHERE h.id=:id", Tenant.class);
+        query.setParameter("id", id);
+        List<Tenant> tenants = query.getResultList();
+
+        if (tenants.size() == 0) {
+            throw new EntityNotFoundException("House with id: "+id+" does not exist in database");
+        }
+
+        return tenants;
     }
 
     public Rental createRental(Rental rental) throws InvalidDateException {

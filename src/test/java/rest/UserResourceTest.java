@@ -222,6 +222,72 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
+    public void getTenantsByHouseIdTest() {
+        Rental rentalA = createAndPersistRental();
+        Rental rentalB = createAndPersistRental();
+        House house = createAndPersistHouse();
+        rentalA.setHouse(house);
+        rentalB.setHouse(house);
+        update(rentalA);
+        update(rentalB);
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .get(BASE_URL+"tenants/"+house.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .contentType(ContentType.JSON)
+                .body("tenants", hasSize(2))
+                .body("$", hasItem(hasEntry("name", rentalA.getTenants().get(0).getName())))
+                .body("$", hasItem(hasEntry("name", rentalB.getTenants().get(0).getName())));
+    }
+
+    @Test
+    public void getTenantsByHouseIdWhenUnauthenticatedTest() {
+        House house = createAndPersistHouse();
+
+        given()
+                .when()
+                .get(BASE_URL+"tenants/"+house.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.FORBIDDEN_403.getStatusCode());
+    }
+
+    @Test
+    public void getTenantsByHouseIdWhenUnauthorizedTest() {
+        House house = createAndPersistHouse();
+        User user = createAndPersistUser();
+        login(user);
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .get(BASE_URL+"tenants/"+house.getId())
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.UNAUTHORIZED_401.getStatusCode());
+    }
+
+    @Test
+    public void getTenantsByNonExistingHouseIdTest() {
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("x-access-token", securityToken)
+                .when()
+                .get(BASE_URL+"tenants/"+nonExistingId)
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
     public void postRentalTest() {
         RentalDTO rentalDTO = createRentalDTO();
         User admin = createAndPersistAdmin();
@@ -391,8 +457,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
         RentalDTO rentalDTO = createRentalDTO();
         rentalDTO = new RentalDTO.Builder()
                 .setId(rentalDTO.getId())
-                .setStartDate(faker.bothify("1#/0#/203#"))
-                .setEndDate(faker.bothify("0#/0#/202#"))
+                .setStartDate(faker.bothify("1#/02/203#"))
+                .setEndDate(faker.bothify("03/02/202#"))
                 .setPriceAnnual(rentalDTO.getPriceAnnual())
                 .setDeposit(rentalDTO.getDeposit())
                 .setContactPerson(rentalDTO.getContactPerson())
@@ -420,8 +486,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
         HouseDTO houseDTO = createHouseDTOFromRental(rental);
         RentalDTO rentalDTO = new RentalDTO.Builder()
                 .setId(rental.getId())
-                .setStartDate(faker.bothify("0#/0#/200#"))
-                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setStartDate(faker.bothify("04/06/200#"))
+                .setEndDate(faker.bothify("1#/06/202#"))
                 .setPriceAnnual(rental.getPriceAnnual())
                 .setDeposit(rental.getDeposit())
                 .setContactPerson(rental.getContactPerson())
@@ -452,8 +518,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
         HouseDTO houseDTO = createHouseDTOFromRental(rental);
         RentalDTO rentalDTO = new RentalDTO.Builder()
                 .setId(rental.getId())
-                .setStartDate(faker.bothify("0#/0#/200#"))
-                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setStartDate(faker.bothify("05/08/200#"))
+                .setEndDate(faker.bothify("1#/08/202#"))
                 .setPriceAnnual(rental.getPriceAnnual())
                 .setDeposit(rental.getDeposit())
                 .setContactPerson(rental.getContactPerson())
@@ -478,8 +544,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
         HouseDTO houseDTO = createHouseDTOFromRental(rental);
         RentalDTO rentalDTO = new RentalDTO.Builder()
                 .setId(rental.getId())
-                .setStartDate(faker.bothify("0#/0#/200#"))
-                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setStartDate(faker.bothify("02/02/200#"))
+                .setEndDate(faker.bothify("1#/07/202#"))
                 .setPriceAnnual(rental.getPriceAnnual())
                 .setDeposit(rental.getDeposit())
                 .setContactPerson(rental.getContactPerson())
@@ -507,8 +573,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
         HouseDTO houseDTO = createHouseDTOFromRental(rental);
         RentalDTO rentalDTO = new RentalDTO.Builder()
                 .setId(rental.getId())
-                .setStartDate(faker.bothify("0#/0#/200#"))
-                .setEndDate(faker.bothify("1#/0#/202#"))
+                .setStartDate(faker.bothify("08/03/200#"))
+                .setEndDate(faker.bothify("1#/03/202#"))
                 .setPriceAnnual(rental.getPriceAnnual())
                 .setDeposit(rental.getDeposit())
                 .setContactPerson(rental.getContactPerson())
@@ -594,8 +660,8 @@ public class UserResourceTest extends ResourceTestEnvironment {
         HouseDTO houseDTO = createHouseDTOFromRental(rental);
         RentalDTO rentalDTO = new RentalDTO.Builder()
                 .setId(rental.getId())
-                .setStartDate(faker.bothify("1#/0#/202#"))
-                .setEndDate(faker.bothify("0#/0#/201#"))
+                .setStartDate(faker.bothify("1#/02/202#"))
+                .setEndDate(faker.bothify("01/01/201#"))
                 .setPriceAnnual(rental.getPriceAnnual())
                 .setDeposit(rental.getDeposit())
                 .setContactPerson(rental.getContactPerson())

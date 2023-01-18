@@ -242,6 +242,27 @@ public class UserFacadeTest extends TestEnvironment {
     }
 
     @Test
+    public void getTenantsByHouseIdTest() {
+        Rental rentalA = createAndPersistRental();
+        Rental rentalB = createAndPersistRental();
+        House house = createAndPersistHouse();
+        rentalA.setHouse(house);
+        rentalB.setHouse(house);
+        update(rentalA);
+        update(rentalB);
+        int expected = 2;
+
+        List<Tenant> actual = facade.getTenantsByHouseId(house.getId());
+
+        assertEquals(expected, actual.size());
+    }
+
+    @Test
+    public void getTenantsByNonExistingHouseIdTest() {
+        assertThrows(EntityNotFoundException.class, ()-> facade.getTenantsByHouseId(nonExistingId));
+    }
+
+    @Test
     public void createRentalTest() throws InvalidDateException {
         Rental rental = createRental();
 
@@ -271,8 +292,8 @@ public class UserFacadeTest extends TestEnvironment {
     @Test
     public void createRentalWithStartDateWhichExceedsEndDateTest() {
         Rental rental = createRental();
-        rental.setStartDate(faker.bothify("0#/0#/204#"));
-        rental.setStartDate(faker.bothify("1#/0#/203#"));
+        rental.setStartDate(faker.bothify("24/04/204#"));
+        rental.setStartDate(faker.bothify("1#/05/203#"));
 
         assertThrows(InvalidDateException.class, ()-> facade.createRental(rental));
     }
@@ -280,8 +301,8 @@ public class UserFacadeTest extends TestEnvironment {
     @Test
     public void updateRentalStartAndEndDateTest() throws InvalidDateException {
         Rental rental = createAndPersistRental();
-        rental.setStartDate(faker.bothify("1#/0#/202#"));
-        rental.setEndDate(faker.bothify("0#/0#/203#"));
+        rental.setStartDate(faker.bothify("1#/09/202#"));
+        rental.setEndDate(faker.bothify("30/09/203#"));
 
         facade.updateRental(rental);
 
@@ -310,8 +331,8 @@ public class UserFacadeTest extends TestEnvironment {
     @Test
     public void updateRentalWithStartDateWhichExceedsEndDateTest() {
         Rental rental = createAndPersistRental();
-        rental.setStartDate(faker.bothify("1#/0#/202#"));
-        rental.setEndDate(faker.bothify("1#/0#/201#"));
+        rental.setStartDate(faker.bothify("1#/06/202#"));
+        rental.setEndDate(faker.bothify("1#/06/201#"));
 
         assertThrows(InvalidDateException.class, ()-> facade.updateRental(rental));
     }
