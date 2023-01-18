@@ -331,6 +331,90 @@ public class UserResourceTest extends ResourceTestEnvironment {
     }
 
     @Test
+    public void postRentalWithInvalidStartAndEndDateTest() {
+        RentalDTO rentalDTO = createRentalDTO();
+        rentalDTO = new RentalDTO.Builder()
+                .setId(rentalDTO.getId())
+                .setStartDate(faker.bothify("??###?"))
+                .setEndDate(faker.bothify("?##??#"))
+                .setPriceAnnual(rentalDTO.getPriceAnnual())
+                .setDeposit(rentalDTO.getDeposit())
+                .setContactPerson(rentalDTO.getContactPerson())
+                .setHouseId(rentalDTO.getHouseId())
+                .setTenantIds(rentalDTO.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .post(BASE_URL+"rentals/")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
+    public void postRentalWithImpossibleStartAndEndDateTest() {
+        RentalDTO rentalDTO = createRentalDTO();
+        rentalDTO = new RentalDTO.Builder()
+                .setId(rentalDTO.getId())
+                .setStartDate(faker.bothify("7#/8#/205#"))
+                .setEndDate(faker.bothify("6#/9#/206#"))
+                .setPriceAnnual(rentalDTO.getPriceAnnual())
+                .setDeposit(rentalDTO.getDeposit())
+                .setContactPerson(rentalDTO.getContactPerson())
+                .setHouseId(rentalDTO.getHouseId())
+                .setTenantIds(rentalDTO.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .post(BASE_URL+"rentals/")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
+    public void postRentalStartDateWhichExceedsEndDateTest() {
+        RentalDTO rentalDTO = createRentalDTO();
+        rentalDTO = new RentalDTO.Builder()
+                .setId(rentalDTO.getId())
+                .setStartDate(faker.bothify("1#/0#/203#"))
+                .setEndDate(faker.bothify("0#/0#/202#"))
+                .setPriceAnnual(rentalDTO.getPriceAnnual())
+                .setDeposit(rentalDTO.getDeposit())
+                .setContactPerson(rentalDTO.getContactPerson())
+                .setHouseId(rentalDTO.getHouseId())
+                .setTenantIds(rentalDTO.getTenantIds())
+                .build();
+        User admin = createAndPersistAdmin();
+        login(admin);
+
+        given()
+                .header("Content-type", ContentType.JSON)
+                .header("x-access-token", securityToken)
+                .and()
+                .body(GSON.toJson(rentalDTO))
+                .when()
+                .post(BASE_URL+"rentals/")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.NO_CONTENT_204.getStatusCode());
+    }
+
+    @Test
     public void putRentalNewStartAndEndDateTest() {
         Rental rental = createAndPersistRental();
         HouseDTO houseDTO = createHouseDTOFromRental(rental);

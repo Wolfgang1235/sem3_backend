@@ -165,28 +165,35 @@ public class UserResource extends Resource {
     @Path("rentals")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response postRental(String rentalFromJson) {
+    public Response postRental(String rentalFromJson) throws InvalidDateException {
         RentalDTO rentalDTO = GSON.fromJson(rentalFromJson, RentalDTO.class);
         House house;
         List<Tenant> tenants = new ArrayList<>();
+        Rental rental;
+
         try {
             house = houseFacade.getHouseById(rentalDTO.getHouseId());
             for (Integer tenantId : rentalDTO.getTenantIds()) {
                 tenants.add(tenantFacade.getTenantById(tenantId));
             }
-        } catch (EntityNotFoundException exception) {
-            throw new NotFoundException("The house is no where to be found");
-        }
-        Rental rental = new Rental(
-                rentalDTO.getStartDate(),
-                rentalDTO.getEndDate(),
-                rentalDTO.getPriceAnnual(),
-                rentalDTO.getDeposit(),
-                rentalDTO.getContactPerson(),
-                house,
-                tenants);
 
-        rental = facade.createRental(rental);
+            rental = new Rental(
+                    rentalDTO.getStartDate(),
+                    rentalDTO.getEndDate(),
+                    rentalDTO.getPriceAnnual(),
+                    rentalDTO.getDeposit(),
+                    rentalDTO.getContactPerson(),
+                    house,
+                    tenants);
+
+            rental = facade.createRental(rental);
+
+        } catch (EntityNotFoundException entityNotFoundException) {
+            throw new NotFoundException("The house is no where to be found");
+        } catch (InvalidDateException invalidDateException) {
+            return Response.status(HttpStatus.NO_CONTENT_204.getStatusCode()).build();
+        }
+
         rentalDTO = buildStandardRentalDTO(rental);
         String rentalToJson = GSON.toJson(rentalDTO);
         return Response.status(HttpStatus.CREATED_201.getStatusCode()).entity(rentalToJson).build();
